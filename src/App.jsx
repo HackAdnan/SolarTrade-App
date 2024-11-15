@@ -1,10 +1,11 @@
-// App.jsx
+
 import React from 'react';
-import Header from './components/Header'; // Adjust the path as needed
-import HeroSection from './components/HeroSection'; // Import HeroSection component
-import './App.css'; // Or any other global styles if applicable
+import Header from './components/Header'; 
+import HeroSection from './components/HeroSection'; 
+import './App.css'; 
 import SignIn from './components/SignIn';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import SignUp from './components/SignUp';
 
 const App = () => {
   return (
@@ -14,7 +15,7 @@ const App = () => {
       <Routes>
         <Route path='/sign-in' element={<SignIn/>}/>
         <Route path='/' element={<HeroSection/>}/>
-      
+        <Route path='/sign-up' element={<SignUp/>}/>
       </Routes>
     </Router>
     
