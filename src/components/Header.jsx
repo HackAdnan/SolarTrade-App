@@ -59,7 +59,7 @@ const Header = () => {
             Marketplace
           </a>
           <a
-            href="#"
+            href="/dashboard"
             className="block sm:inline-block text-white hover:text-gray-200 font-semibold hover:underline px-4 py-2"
           >
             Contact us
