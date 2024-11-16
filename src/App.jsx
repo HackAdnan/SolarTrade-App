@@ -6,6 +6,7 @@ import './App.css';
 import SignIn from './components/SignIn';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import SignUp from './components/SignUp';
+import Dashboard from './components/Dashboard';
 
 const App = () => {
   return (
@@ -13,6 +14,7 @@ const App = () => {
     <Router>
         <Header />   
       <Routes>
+        <Route path='/dashboard' element={<Dashboard/>}/>
         <Route path='/sign-in' element={<SignIn/>}/>
         <Route path='/' element={<HeroSection/>}/>
         <Route path='/sign-up' element={<SignUp/>}/>
