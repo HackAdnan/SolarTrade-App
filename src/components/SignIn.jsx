@@ -1,11 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useNavigate } from 'react';
 import { Link } from 'react-router-dom'; // Import Link from react-router-dom
+import api from "./api"; 
 
 const SignIn = () => {
   // Handle form state
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null); // For capturing any error messages
+  // const navigate = useNavigate(); // Hook for navigation
+//   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,29 +25,35 @@ const SignIn = () => {
       password,
     };
 
-    try {
-      // Make a POST request to your backend API endpoint
-      const response = await fetch('http://localhost:5000/api/sign-in', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
+        try {
+      // Use the api helper to call the backend login endpoint
+      const response = await api.loginUser(payload); // Assuming loginUser is defined in api.js
 
-      const data = await response.json();
+      if (response.data.token) {
+        // Store the token (e.g., in localStorage or context)
+        localStorage.setItem('authToken', response.data.token);
 
-      if (response.ok) {
-        // Success - handle successful login (e.g., store token, redirect, etc.)
-        console.log('Login successful:', data);
-        // Redirect or perform any action
+        // Redirect based on user role
+        if (response.data.message.includes('Admin')) {
+          // navigate('/#'); // Redirect to admin dashboard or wherever you want
+          alert("Admin login successfully!");
+        } else {
+          // navigate('/#'); // Redirect to user dashboard or home
+          alert("User login successfully!");
+        }
+
       } else {
-        // Handle error - backend returned error
-        setError(data.message || 'An error occurred. Please try again.');
+        setError('An error occurred. Please try again.');
       }
     } catch (err) {
-      // Catch network errors or unexpected issues
       console.error('Error:', err);
+      if (err.response && err.response.data) {
+        // Handle error from the backend (invalid user or password)
+        setError(err.response.data.message || 'An error occurred. Please try again.');
+      } else {
+        // Handle any network or unexpected errors
+        setError('An error occurred. Please try again.');
+      }
       setError('An error occurred. Please try again.');
     }
   };
