@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 const Dashboard = () => {
   // Mock data for testing
-  const [userDetails, setUserDetails] = useState({
+  const [userDetails] = useState({
     name: 'John Doe',
     email: 'johndoe@example.com',
     solarUnits: 120,
@@ -19,6 +19,22 @@ const Dashboard = () => {
     units: '',
     price: '',
   });
+
+  // Mock data for buyer requests
+  const [requests, setRequests] = useState([
+    { id: 1, postId: 1, buyerName: 'Alice Smith', buyerEmail: 'alice@example.com', units: 20 },
+    { id: 2, postId: 1, buyerName: 'Bob Johnson', buyerEmail: 'bob@example.com', units: 10 },
+    { id: 3, postId: 2, buyerName: 'Charlie Brown', buyerEmail: 'charlie@example.com', units: 15 },
+  ]);
+
+  // Mock data for ongoing transactions
+  const [transactions, setTransactions] = useState([
+    { id: 1, postId: 1, status: 'In Progress', units: 20, price: 50, date: '2024-11-20' },
+    { id: 2, postId: 2, status: 'Completed', units: 10, price: 30, date: '2024-11-18' },
+    { id: 3, postId: 1, status: 'Pending', units: 15, price: 40, date: '2024-11-19' },
+  ]);
+
+  const [showTransactions, setShowTransactions] = useState(false);
 
   // Handle form input changes
   const handleInputChange = (e) => {
@@ -47,6 +63,23 @@ const Dashboard = () => {
   // Handle deleting a post
   const deletePost = (id) => {
     setPosts((prevPosts) => prevPosts.filter((post) => post.id !== id));
+  };
+
+  // Handle approving a request
+  const approveRequest = (requestId) => {
+    alert(`Request ID ${requestId} approved!`);
+    setRequests((prevRequests) => prevRequests.filter((req) => req.id !== requestId));
+  };
+
+  // Handle declining a request
+  const declineRequest = (requestId) => {
+    alert(`Request ID ${requestId} declined!`);
+    setRequests((prevRequests) => prevRequests.filter((req) => req.id !== requestId));
+  };
+
+  // Toggle the visibility of transactions
+  const toggleTransactions = () => {
+    setShowTransactions(!showTransactions);
   };
 
   return (
@@ -87,7 +120,7 @@ const Dashboard = () => {
         </div>
 
         {/* Create Post Section */}
-        <div className="bg-white text-gray-800 rounded-lg shadow-lg p-6">
+        <div className="bg-white text-gray-800 rounded-lg shadow-lg p-6 mb-8">
           <h2 className="text-2xl font-poppins font-bold mb-4">Create Post</h2>
           <form onSubmit={createPost}>
             <div className="mb-4">
@@ -130,6 +163,66 @@ const Dashboard = () => {
               Post for Sale
             </button>
           </form>
+        </div>
+
+        {/* View Requests Section */}
+        <div className="bg-white text-gray-800 rounded-lg shadow-lg p-6 mb-8">
+          <h2 className="text-2xl font-poppins font-bold mb-4">View Requests</h2>
+          {requests.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {requests.map((req) => (
+                <div key={req.id} className="bg-gray-100 p-4 rounded-lg shadow-md">
+                  <h3 className="text-xl font-semibold">{req.buyerName}</h3>
+                  <p className="text-sm mb-2">Email: {req.buyerEmail}</p>
+                  <p className="text-sm mb-2">Post ID: {req.postId}</p>
+                  <p className="text-sm mb-4">Units Requested: {req.units}</p>
+                  <button
+                    onClick={() => approveRequest(req.id)}
+                    className="bg-green-500 text-white px-4 py-2 rounded-full font-semibold hover:bg-green-600 mr-2"
+                  >
+                    Approve
+                  </button>
+                  <button
+                    onClick={() => declineRequest(req.id)}
+                    className="bg-red-500 text-white px-4 py-2 rounded-full font-semibold hover:bg-red-600"
+                  >
+                    Decline
+                  </button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-600">No requests yet.</p>
+          )}
+        </div>
+
+        {/* My Transactions Section */}
+        <div className="bg-white text-gray-800 rounded-lg shadow-lg p-6 mb-8">
+          <h2 className="text-2xl font-poppins font-bold mb-4">My Transactions</h2>
+          <button
+            onClick={toggleTransactions}
+            className="bg-blue-500 text-white px-6 py-3 rounded-full font-semibold hover:bg-blue-600 mb-4"
+          >
+            {showTransactions ? 'Hide Transactions' : 'View Transactions'}
+          </button>
+          {showTransactions && transactions.length > 0 ? (
+            <div>
+              <ul>
+                {transactions.map((trans) => (
+                  <li key={trans.id} className="border-b py-4">
+                    <p className="font-semibold">
+                      Transaction ID: {trans.id} - Status: {trans.status}
+                    </p>
+                    <p className="text-sm">Units: {trans.units}</p>
+                    <p className="text-sm">Price: ${trans.price}</p>
+                    <p className="text-sm">Date: {trans.date}</p>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : (
+            showTransactions && <p className="text-gray-600">No transactions yet.</p>
+          )}
         </div>
       </div>
     </section>

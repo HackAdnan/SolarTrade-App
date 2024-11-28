@@ -12,11 +12,11 @@ const Header = () => {
     <header className="bg-emerald-800 py-4 sticky top-0 z-50 shadow-lg">
       <div className="container mx-auto flex justify-between items-center px-4 sm:px-6 lg:px-8">
         {/* Logo */}
-        <a href="/">
+        <Link to="/">
           <div className="ml-3 flex items-center">
             <span className="text-2xl sm:text-4xl font-serif text-white">SolarTrade</span>
           </div>
-        </a>
+        </Link>
 
         {/* Hamburger Button (visible on small screens) */}
         <button
@@ -46,30 +46,36 @@ const Header = () => {
             isMenuOpen ? 'block' : 'hidden'
           } absolute sm:static top-full left-0 w-full sm:w-auto bg-emerald-800 sm:bg-transparent z-40 sm:flex sm:items-center sm:space-x-8 sm:mt-0`}
         >
-          <a
-            href="/"
+          <Link
+            to="/"
             className="block sm:inline-block text-white hover:text-gray-200 font-semibold hover:underline px-4 py-2"
           >
             Home
-          </a>
-          <a
-            href="#"
+          </Link>
+          <Link
+            to="/dashboard"
+            className="block sm:inline-block text-white hover:text-gray-200 font-semibold hover:underline px-4 py-2"
+          >
+            Dashboard
+          </Link>
+          <Link
+            to="/marketplace"
             className="block sm:inline-block text-white hover:text-gray-200 font-semibold hover:underline px-4 py-2"
           >
             Marketplace
-          </a>
-          <a
-            href="#"
+          </Link>
+          <Link
+            to="#"
             className="block sm:inline-block text-white hover:text-gray-200 font-semibold hover:underline px-4 py-2"
           >
-            Contact us
-          </a>
-          <a
-            href="#"
+            Contact Us
+          </Link>
+          <Link
+            to="#"
             className="block sm:inline-block text-white hover:text-gray-200 font-semibold hover:underline px-4 py-2"
           >
             About Developers
-          </a>
+          </Link>
         </nav>
 
         {/* Sign-in Button */}
