@@ -18,7 +18,11 @@ const api = {
       dashboard: () => axios.get(`${API_BASE_URL}/dashboard/`, { withCredentials: true }),  // Corrected API call
       // Add other API calls as needed
   getMyPost: () => axios.get(`${API_BASE_URL}/posts/myPost`, {withCredentials: true}),//posts as parameter
-  delPost: () => axios.post(`${API_BASE_URL}/posts/deletePost`, {withCredentials: true})
+  delPost: (id) => axios.delete(`${API_BASE_URL}/posts/deletePost/${id}`, {withCredentials: true}),
+  createPost: (postData) =>
+    axios.post(`${API_BASE_URL}/posts/post`, postData, { withCredentials: true }),
+  getLocation: () =>
+    axios.get(`${API_BASE_URL}/posts/location`),
 };
 
 export default api;

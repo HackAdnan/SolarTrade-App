@@ -606,12 +606,27 @@ const Dashboard = () => {
   const [user, setUser] = useState(null);
   const [error, setError] = useState('');
   const [posts, setPosts] = useState([]);
-
+  const [loading , setIsLoading] = useState(false);
   const [formValues, setFormValues] = useState({
-    title: '',
     units: '',
     price: '',
+    location: ''
   });
+
+  const [locations, setLocations] = useState([]);
+    const [selectedLocation, setSelectedLocation] = useState(null);
+  // const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
+
+
+  const [isFormVisible, setIsFormVisible] = useState(false);
+
+  // Toggle function
+  const toggleFormVisibility = () => {
+    setIsFormVisible(!isFormVisible);
+  };
+
+  
 
   const [requests, setRequests] = useState([
     { id: 1, postId: 1, buyerName: 'Alice Smith', buyerEmail: 'alice@example.com', units: 20 },
@@ -644,18 +659,31 @@ const Dashboard = () => {
       console.error(err);
     }
   };
+
+  const fetchLocations = async () => {
+    try {
+        const response = await api.getLocation(); // Fetch locations using api.js
+        setLocations(response.data.locations); // Set the locations data to state
+    } catch (error) {
+        console.error('Failed to fetch locations:', error);
+    }
+};
+
   const deletePost = async (postId) => {
+    console.log("fdfdt",postId)
     setIsLoading(true);
     setError(null);
     
     try {
       // Send a DELETE request to the backend with the post ID
-      const response = await api.delPost();
+      const response = await api.delPost(postId);
       console.log("Post deleted:", response.data);
       
       // Remove the deleted post from the local state (or refetch posts)
       // Example: Set posts excluding the deleted one
       // setPosts(posts.filter(post => post.post_id !== postId));
+              setPosts((prevPosts) => prevPosts.filter((post) => post.post_id !== postId));
+
     } catch (err) {
       setError(err.message || "Error deleting post");
       console.error("Error deleting post:", err);
@@ -663,36 +691,80 @@ const Dashboard = () => {
       setIsLoading(false);
     }
   };
+
+    
+    // Handle input changes
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormValues({
+            ...formValues,
+            [name]: value
+        });
+      }
+    
+
+    // Form submission handler
+    const handleSubmit = async (e) => {
+      console.log("hjdfsjf")
+        e.preventDefault();
+        setError(null);
+        setSuccess(false);
+
+        try {
+            const postData = {
+                units: parseInt(formValues.units),
+                price_per_unit: parseInt(formValues.price),
+                location_id: parseInt(formValues.location)
+            };
+
+            // Call the API to create the post
+            const response = await api.createPost(postData);
+            console.log('Post created:', response.data);
+
+            // Reset the form and show success message
+            setFormValues({ units: '', price: '', location_id: '' });
+            setSuccess(true);
+        } catch (err) {
+            console.error('Error creating post:', err);
+            setError(err.response?.data?.error || 'An error occurred while creating the post');
+        }
+    };
+  
+
+
+
   useEffect(() => {
     fetchUserData();
     fetchPosts();
+    fetchLocations();
   }, []);
 
   if (error) {
     return <p>{error}</p>;
   }
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormValues((prevValues) => ({
-      ...prevValues,
-      [name]: value,
-    }));
-  };
 
-  const createPost = (e) => {
-    e.preventDefault();
-    if (formValues.title && formValues.units && formValues.price) {
-      const newPost = {
-        id: posts.length + 1,
-        ...formValues,
-      };
-      setPosts((prevPosts) => [...prevPosts, newPost]);
-      setFormValues({ title: '', units: '', price: '' });
-    } else {
-      alert('All fields are required!');
-    }
-  };
+  // const handleInputChange = (e) => {
+  //   const { name, value } = e.target;
+  //   setFormValues((prevValues) => ({
+  //     ...prevValues,
+  //     [name]: value,
+  //   }));
+  // };
+
+  // const createPost = (e) => {
+  //   e.preventDefault();
+  //   if (formValues.title && formValues.units && formValues.price) {
+  //     const newPost = {
+  //       id: posts.length + 1,
+  //       ...formValues,
+  //     };
+  //     setPosts((prevPosts) => [...prevPosts, newPost]);
+  //     setFormValues({ title: '', units: '', price: '' });
+  //   } else {
+  //     alert('All fields are required!');
+  //   }
+  // };
 
   // const deletePost = (id) => {
   //   setPosts((prevPosts) => prevPosts.filter((post) => post.id !== id));
@@ -739,7 +811,7 @@ const Dashboard = () => {
                   <p className="text-sm mb-2">Units: {post.units}</p>
                   <p className="text-sm mb-4">Price: ${post.price_per_unit}</p>
                   <button
-                    onClick={() => deletePost(post.id)}
+                    onClick={() => deletePost(post.post_id)}
                     className="bg-red-500 text-white px-4 py-2 rounded-full font-semibold hover:bg-red-600"
                   >
                     Delete Post
@@ -753,20 +825,79 @@ const Dashboard = () => {
         </div>
 
         {/* Create Post Section */}
-        <div className="bg-white text-gray-800 rounded-lg shadow-lg p-6 mb-8">
+        {/* <div className="bg-white text-gray-800 rounded-lg shadow-lg p-6 mb-8">
           <h2 className="text-2xl font-poppins font-bold mb-4">Create Post</h2>
-          <form onSubmit={createPost}>
-            <div className="mb-4">
-              <label className="block text-gray-700 font-semibold mb-2">Title</label>
+
+
+
+          <form onSubmit={handleSubmit}>
+          <div className="mb-4">
+              <label className="block text-gray-700 font-semibold mb-2">Units</label>
               <input
-                type="text"
-                name="title"
-                value={formValues.title}
+                type="number"
+                name="units"
+                value={formValues.units}
                 onChange={handleInputChange}
                 className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none"
                 required
               />
             </div>
+            <div className="mb-4">
+              <label className="block text-gray-700 font-semibold mb-2">Price</label>
+              <input
+                type="number"
+                name="price"
+                value={formValues.price}
+                onChange={handleInputChange}
+                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none"
+                required
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-gray-700 font-semibold mb-2">Location</label>
+              <select
+                name="location"
+                value={formValues.location}
+                onChange={handleInputChange}
+                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none"
+                required
+              >
+                <option value="">Select Location</option>
+                {locations.map((location) => (
+                  <option key={location.id} value={location.name}>
+                    {location.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <button
+              type="submit"
+              className="bg-yellow-500 text-gray-800 px-6 py-3 rounded-full font-semibold hover:bg-yellow-600"
+            >
+              Post for Sale
+            </button>
+            </form>
+        </div> */}
+
+
+
+
+<div>
+      {/* Button to toggle the Create Post form */}
+      <button
+        onClick={toggleFormVisibility}
+        className="bg-yellow-500 text-gray-800 px-6 py-3 rounded-full font-semibold hover:bg-yellow-600 mb-4"
+      >
+        {isFormVisible ? 'Hide Create Post' : 'Create Post'}
+      </button>
+
+      {/* Create Post Form Section */}
+      {isFormVisible && (
+        <div className="bg-white text-gray-800 rounded-lg shadow-lg p-6 mb-8">
+          <h2 className="text-2xl font-poppins font-bold mb-4">Create Post</h2>
+
+          <form onSubmit={handleSubmit}>
             <div className="mb-4">
               <label className="block text-gray-700 font-semibold mb-2">Units</label>
               <input
@@ -789,6 +920,44 @@ const Dashboard = () => {
                 required
               />
             </div>
+            {/* <div className="mb-4">
+              <label className="block text-gray-700 font-semibold mb-2">Location</label>
+              <select
+                name="location"
+                value={formValues.location}
+                onChange={handleInputChange}
+                 className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none"
+                required
+              >
+                <option value="" className='text-black'>Select Location</option>
+                {locations.map((location) => (
+                  <option key={location.id} value={location.name}>
+                    {location.name}
+                  </option>
+                ))}
+              </select>
+            </div> */}
+
+<div className="mb-4">
+                <label className="block text-gray-700 font-semibold mb-2">Location</label>
+                <select
+                  name="location"
+                  value={formValues.location}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none"
+                  required
+                >
+                  <option value="">Select Location</option>
+                  {locations.map((location) => (
+                    <option key={location.loc_id} value={location.loc_id}>
+                      {location.address}
+                    </option>
+                  ))}
+                </select>
+              </div>
+          
+
+
             <button
               type="submit"
               className="bg-yellow-500 text-gray-800 px-6 py-3 rounded-full font-semibold hover:bg-yellow-600"
@@ -797,6 +966,15 @@ const Dashboard = () => {
             </button>
           </form>
         </div>
+      )}
+    </div>
+
+
+
+
+
+
+
 
         {/* View Requests Section */}
         <div className="bg-white text-gray-800 rounded-lg shadow-lg p-6 mb-8">
