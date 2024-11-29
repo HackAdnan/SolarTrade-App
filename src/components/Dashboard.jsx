@@ -892,7 +892,7 @@ const Dashboard = () => {
 
 
 
-<div>
+    <div>
       {/* Button to toggle the Create Post form */}
       <button
         onClick={toggleFormVisibility}

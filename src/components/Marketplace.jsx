@@ -1,13 +1,10 @@
-import React, { useState } from 'react';
-
+import React, { useState, useEffect } from 'react';
+import api from './api';
 const Marketplace = () => {
   // Mock data for posts
-  const [posts] = useState([
-    { id: 1, title: 'Excess Solar for Sale', units: 50, price: 100 },
-    { id: 2, title: 'Affordable Solar Units', units: 30, price: 60 },
-    { id: 3, title: 'High-Quality Solar Units', units: 20, price: 80 },
-  ]);
 
+  const [error, setError] = useState('');
+  const [posts, setPosts] = useState([]);
   const [selectedPost, setSelectedPost] = useState(null); // For the selected post
   const [purchaseUnits, setPurchaseUnits] = useState(''); // For the input field
   const [isPopupOpen, setIsPopupOpen] = useState(false); // Popup state
@@ -24,6 +21,16 @@ const Marketplace = () => {
     setSelectedPost(null);
     setPurchaseUnits('');
     setIsPopupOpen(false);
+  };
+
+  const fetchPosts = async () => {
+    try {
+      const response = await api.getAllPost();
+      setPosts(response.data.posts);
+    } catch (err) {
+      setError("Error fetching posts");
+      console.error(err);
+    }
   };
 
   // Handle form submission
@@ -43,16 +50,21 @@ const Marketplace = () => {
     closePopup();
   };
 
+  useEffect(() => {
+    fetchPosts();
+  }, []);
+
   return (
     <section className="marketplace bg-gradient-to-r from-green-400 via-teal-500 to-blue-500 text-white min-h-screen py-10">
       <div className="container mx-auto px-6">
         <h2 className="text-3xl font-poppins font-bold mb-8">Marketplace</h2>
+        {posts.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {posts.map((post) => (
             <div key={post.id} className="bg-white text-gray-800 rounded-lg shadow-lg p-6">
-              <h3 className="text-xl font-semibold mb-2">{post.title}</h3>
-              <p className="text-sm mb-1">Available Units: {post.units}</p>
-              <p className="text-sm mb-4">Price per Unit: ${post.price}</p>
+               <h3 className="text-xl font-semibold">Post ID: {post.post_id}</h3>
+                  <p className="text-sm mb-2">Units: {post.units}</p>
+                  <p className="text-sm mb-4">Price per Unit: ${post.price_per_unit}</p>
               <button
                 onClick={() => openPopup(post)}
                 className="bg-emerald-500 text-white px-4 py-2 rounded-full font-semibold hover:bg-emerald-600"
@@ -62,6 +74,9 @@ const Marketplace = () => {
             </div>
           ))}
         </div>
+        ): (
+          <p className="text-gray-600">No posts yet. Create your first post below!</p>
+        )}
 
         {/* Popup Dialog */}
         {isPopupOpen && (

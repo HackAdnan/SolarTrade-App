@@ -23,6 +23,7 @@ const api = {
     axios.post(`${API_BASE_URL}/posts/post`, postData, { withCredentials: true }),
   getLocation: () =>
     axios.get(`${API_BASE_URL}/posts/location`),
+  getAllPost: () => axios.get(`${API_BASE_URL}/posts/home`),
 };
 
 export default api;
