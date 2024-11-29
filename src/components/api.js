@@ -24,6 +24,10 @@ const api = {
   getLocation: () =>
     axios.get(`${API_BASE_URL}/posts/location`),
   getAllPost: () => axios.get(`${API_BASE_URL}/posts/home`),
+  createTransaction: (transactionData) =>
+    axios.post(`${API_BASE_URL}/transactions/createTransaction`, transactionData, { withCredentials: true }),
+  getRequests: () => axios.get(`${API_BASE_URL}/transactions/getReq`, {withCredentials : true}),
+  approveReq: (id, units, p_id) => axios.post(`${API_BASE_URL}/transactions/approve/${id}/${units}/${p_id}`, {withCredentials : true})     
 };
 
 export default api;

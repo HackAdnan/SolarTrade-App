@@ -625,14 +625,7 @@ const Dashboard = () => {
   const toggleFormVisibility = () => {
     setIsFormVisible(!isFormVisible);
   };
-
-  
-
-  const [requests, setRequests] = useState([
-    { id: 1, postId: 1, buyerName: 'Alice Smith', buyerEmail: 'alice@example.com', units: 20 },
-    { id: 2, postId: 1, buyerName: 'Bob Johnson', buyerEmail: 'bob@example.com', units: 10 },
-    { id: 3, postId: 2, buyerName: 'Charlie Brown', buyerEmail: 'charlie@example.com', units: 15 },
-  ]);
+  const [requests, setRequests] = useState([]);
 
   const [transactions, setTransactions] = useState([
     { id: 1, postId: 1, status: 'In Progress', units: 20, price: 50, date: '2024-11-20' },
@@ -738,14 +731,21 @@ const Dashboard = () => {
             setError(err.response?.data?.error || 'An error occurred while creating the post');
         }
     };
-  
 
-
+    const getRequests = async () => {
+      try {
+        const response = await api.getRequests();
+        setRequests(response.data.posts); // Assuming the user details are in response.data
+      } catch (err) {
+        setError('Failed to load request posts');
+      }
+    }
 
   useEffect(() => {
     fetchUserData();
     fetchPosts();
     fetchLocations();
+    getRequests();
   }, []);
 
   if (error) {
@@ -779,9 +779,16 @@ const Dashboard = () => {
   //   setPosts((prevPosts) => prevPosts.filter((post) => post.id !== id));
   // };
 
-  const approveRequest = (requestId) => {
-    alert(`Request ID ${requestId} approved!`);
-    setRequests((prevRequests) => prevRequests.filter((req) => req.id !== requestId));
+  const approveRequest = async (trans_Id, units, post_id) => {
+    try{
+      const response = await api.approveReq(trans_Id, units, post_id)
+      alert(`Transaction ID ${trans_Id} approved!`);
+    }
+    catch(err){
+      setError(err.message || "Error approving post");
+      console.error("Error deleting post:", err);
+    }
+    // setRequests((prevRequests) => prevRequests.filter((req) => req.id !== requestId));
   };
 
   const declineRequest = (requestId) => {
@@ -979,12 +986,6 @@ const Dashboard = () => {
     </div>
 
 
-
-
-
-
-
-
         {/* View Requests Section */}
         <div className="bg-white text-gray-800 rounded-lg shadow-lg p-6 mb-8">
           <h2 className="text-2xl font-poppins font-bold mb-4">View Requests</h2>
@@ -992,12 +993,12 @@ const Dashboard = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {requests.map((req) => (
                 <div key={req.id} className="bg-gray-100 p-4 rounded-lg shadow-md">
-                  <h3 className="text-xl font-semibold">{req.buyerName}</h3>
-                  <p className="text-sm mb-2">Email: {req.buyerEmail}</p>
-                  <p className="text-sm mb-2">Post ID: {req.postId}</p>
+                  <h3 className="text-xl font-semibold">{req.user_name}</h3>
+                  <p className="text-sm mb-2">Email: {req.email}</p>
+                  <p className="text-sm mb-2">Post ID: {req.post_id}</p>
                   <p className="text-sm mb-4">Units Requested: {req.units}</p>
                   <button
-                    onClick={() => approveRequest(req.id)}
+                    onClick={() => approveRequest(req.trans_id, req.units, req.post_id)}
                     className="bg-green-500 text-white px-4 py-2 rounded-full font-semibold hover:bg-green-600 mr-2"
                   >
                     Approve
