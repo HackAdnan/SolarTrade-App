@@ -696,10 +696,19 @@ const Dashboard = () => {
     // Handle input changes
     const handleInputChange = (e) => {
         const { name, value } = e.target;
+        if ((name === 'units' || name === 'price') && value <= 0) {
+          // Optionally, set to 0 or show an error message
+          setFormValues({
+            ...formValues,
+            [name]: '',  // Reset to 0 or you can keep it empty
+          });
+          return;  // Exit early to prevent setting negative values
+        }
         setFormValues({
             ...formValues,
             [name]: value
         });
+      
       }
     
 
