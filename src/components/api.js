@@ -27,7 +27,8 @@ const api = {
   createTransaction: (transactionData) =>
     axios.post(`${API_BASE_URL}/transactions/createTransaction`, transactionData, { withCredentials: true }),
   getRequests: () => axios.get(`${API_BASE_URL}/transactions/getReq`, {withCredentials : true}),
-  approveReq: (id, units, p_id) => axios.post(`${API_BASE_URL}/transactions/approve/${id}/${units}/${p_id}`, {withCredentials : true})     
+  approveReq: (id, units, p_id) => axios.post(`${API_BASE_URL}/transactions/approve/${id}/${units}/${p_id}`, {withCredentials : true}) ,
+  getRecPost: () => axios.get(`${API_BASE_URL}/transactions/getRecPost`, {withCredentials : true}),    
 };
 
 export default api;

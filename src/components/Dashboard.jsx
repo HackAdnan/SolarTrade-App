@@ -627,11 +627,7 @@ const Dashboard = () => {
   };
   const [requests, setRequests] = useState([]);
 
-  const [transactions, setTransactions] = useState([
-    { id: 1, postId: 1, status: 'In Progress', units: 20, price: 50, date: '2024-11-20' },
-    { id: 2, postId: 2, status: 'Completed', units: 10, price: 30, date: '2024-11-18' },
-    { id: 3, postId: 1, status: 'Pending', units: 15, price: 40, date: '2024-11-19' },
-  ]);
+  const [recTransactions, setRecTransactions] = useState([]);
 
   const [showTransactions, setShowTransactions] = useState(false);
 
@@ -741,55 +737,48 @@ const Dashboard = () => {
       }
     }
 
+    const getRecPost = async () => {
+      try {
+        const response = await api.getRecPost();
+        setRecTransactions(response.data.posts); // Assuming the user details are in response.data
+      } catch (err) {
+        setError('Failed to load Rec posts');
+      }
+    }
+
   useEffect(() => {
     fetchUserData();
     fetchPosts();
     fetchLocations();
     getRequests();
+    getRecPost();
   }, []);
 
   if (error) {
     return <p>{error}</p>;
   }
 
+  const [approvedRequests, setApprovedRequests] = useState([]); // Track approved requests
 
-  // const handleInputChange = (e) => {
-  //   const { name, value } = e.target;
-  //   setFormValues((prevValues) => ({
-  //     ...prevValues,
-  //     [name]: value,
-  //   }));
-  // };
-
-  // const createPost = (e) => {
-  //   e.preventDefault();
-  //   if (formValues.title && formValues.units && formValues.price) {
-  //     const newPost = {
-  //       id: posts.length + 1,
-  //       ...formValues,
-  //     };
-  //     setPosts((prevPosts) => [...prevPosts, newPost]);
-  //     setFormValues({ title: '', units: '', price: '' });
-  //   } else {
-  //     alert('All fields are required!');
-  //   }
-  // };
-
-  // const deletePost = (id) => {
-  //   setPosts((prevPosts) => prevPosts.filter((post) => post.id !== id));
-  // };
+  
 
   const approveRequest = async (trans_Id, units, post_id) => {
-    try{
-      const response = await api.approveReq(trans_Id, units, post_id)
+    try {
+      await api.approveReq(trans_Id, units, post_id);
+
+      // Update the request's status to 'Progress' after successful approval
+      setRequests((prevRequests) =>
+        prevRequests.map((req) =>
+          req.trans_id === trans_Id ? { ...req, status: "Progress" } : req
+        )
+      );
       alert(`Transaction ID ${trans_Id} approved!`);
+    } catch (err) {
+      setError(err.message || "Error approving transaction");
+      console.error("Error approving transaction:", err);
     }
-    catch(err){
-      setError(err.message || "Error approving post");
-      console.error("Error deleting post:", err);
-    }
-    // setRequests((prevRequests) => prevRequests.filter((req) => req.id !== requestId));
   };
+
 
   const declineRequest = (requestId) => {
     alert(`Request ID ${requestId} declined!`);
@@ -840,7 +829,195 @@ const Dashboard = () => {
           )}
         </div>
 
-        {/* Create Post Section */}
+    <div>
+      {/* Button to toggle the Create Post form */}
+      <button
+        onClick={toggleFormVisibility}
+        className="bg-yellow-500 text-gray-800 px-6 py-3 rounded-full font-semibold hover:bg-yellow-600 mb-4"
+      >
+        {isFormVisible ? 'Hide Create Post' : 'Create Post'}
+      </button>
+
+      {/* Create Post Form Section */}
+      {isFormVisible && (
+        <div className="bg-white text-gray-800 rounded-lg shadow-lg p-6 mb-8">
+          <h2 className="text-2xl font-poppins font-bold mb-4">Create Post</h2>
+
+          <form onSubmit={handleSubmit}>
+            <div className="mb-4">
+              <label className="block text-gray-700 font-semibold mb-2">Units</label>
+              <input
+                type="number"
+                name="units"
+                value={formValues.units}
+                onChange={handleInputChange}
+                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none"
+                required
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-gray-700 font-semibold mb-2">Price</label>
+              <input
+                type="number"
+                name="price"
+                value={formValues.price}
+                onChange={handleInputChange}
+                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none"
+                required
+              />
+            </div>
+          
+<div className="mb-4">
+                <label className="block text-gray-700 font-semibold mb-2">Location</label>
+                <select
+                  name="location"
+                  value={formValues.location}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none"
+                  required
+                >
+                  <option value="">Select Location</option>
+                  {locations.map((location) => (
+                    <option key={location.loc_id} value={location.loc_id}>
+                      {location.address}
+                    </option>
+                  ))}
+                </select>
+              </div>
+          
+
+
+            <button
+              type="submit"
+              className="bg-yellow-500 text-gray-800 px-6 py-3 rounded-full font-semibold hover:bg-yellow-600"
+            >
+              Post for Sale
+            </button>
+          </form>
+        </div>
+      )}
+    </div>
+    <div className="bg-white text-gray-800 rounded-lg shadow-lg p-6 mb-8">
+      <h2 className="text-2xl font-poppins font-bold mb-4">View Requests</h2>
+      {requests.length > 0 ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {requests.map((req) => (
+            <div key={req.trans_id} className="bg-gray-100 p-4 rounded-lg shadow-md">
+              <h3 className="text-xl font-semibold">{req.user_name}</h3>
+              <p className="text-sm mb-2">Email: {req.email}</p>
+              <p className="text-sm mb-2">Post ID: {req.post_id}</p>
+              <p className="text-sm mb-4">Units Requested: {req.units}</p>
+
+              <button
+                onClick={() => approveRequest(req.trans_id, req.units, req.post_id)}
+                disabled={req.status === "Progress"} // Disable if status is 'Progress'
+                className={`px-4 py-2 rounded-full font-semibold mr-2 ${
+                  req.status === "Progress"
+                    ? "bg-gray-400 text-gray-700 cursor-not-allowed"
+                    : "bg-green-500 text-white hover:bg-green-600"
+                }`}
+              >
+                {req.status === "Progress" ? "Approved" : "Approve"}
+              </button>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="text-gray-500">No requests available.</p>
+      )}
+    </div>
+
+
+        {/* Transactions Section */}
+         <div className="bg-white text-gray-800 rounded-lg shadow-lg p-6 mb-8">
+          <h2 className="text-2xl font-poppins font-bold mb-4">Transactions</h2>
+          <button
+            onClick={toggleTransactions}
+            className="bg-blue-500 text-white px-4 py-2 rounded-full font-semibold hover:bg-blue-600 mb-4"
+          >
+            {showTransactions ? 'Hide' : 'Show'} Transactions
+          </button>
+          {showTransactions && recTransactions.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {recTransactions.map((txn) => (
+                <div key={txn.id} className="bg-gray-100 p-4 rounded-lg shadow-md">
+                  <h3 className="text-xl font-semibold">Post ID: {txn.post_id}</h3>
+                  <p className="text-sm mb-2">Buyer Name: {txn.user_name}</p>
+                  <p className="text-sm mb-2">Email: {txn.email}</p>
+                  <p className="text-sm mb-2">Units Sold: {txn.units}</p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-600">No transactions yet.</p>
+          )}
+        </div>
+      </div> 
+
+    </section>
+  );
+};
+
+export default Dashboard;
+
+
+
+
+
+  // const handleInputChange = (e) => {
+  //   const { name, value } = e.target;
+  //   setFormValues((prevValues) => ({
+  //     ...prevValues,
+  //     [name]: value,
+  //   }));
+  // };
+
+  // const createPost = (e) => {
+  //   e.preventDefault();
+  //   if (formValues.title && formValues.units && formValues.price) {
+  //     const newPost = {
+  //       id: posts.length + 1,
+  //       ...formValues,
+  //     };
+  //     setPosts((prevPosts) => [...prevPosts, newPost]);
+  //     setFormValues({ title: '', units: '', price: '' });
+  //   } else {
+  //     alert('All fields are required!');
+  //   }
+  // };
+
+  // const deletePost = (id) => {
+  //   setPosts((prevPosts) => prevPosts.filter((post) => post.id !== id));
+  // };
+
+
+// const approveRequest = async (trans_Id, units, post_id) => {
+  //   try {
+  //     const response = await api.approveReq(trans_Id, units, post_id);
+
+  //     // If backend call is successful, mark this transaction as approved
+  //     setApprovedRequests((prev) => [...prev, trans_Id]);
+  //     alert(`Transaction ID ${trans_Id} approved!`);
+  //   } catch (err) {
+  //     setError(err.message || "Error approving transaction");
+  //     console.error("Error approving transaction:", err);
+  //   }
+  // };
+
+ // const approveRequest = async (trans_Id, units, post_id) => {
+  //   try{
+  //     const response = await api.approveReq(trans_Id, units, post_id)
+  //     alert(`Transaction ID ${trans_Id} approved!`);
+  //   }
+  //   catch(err){
+  //     setError(err.message || "Error approving post");
+  //     console.error("Error deleting post:", err);
+  //   }
+  //   // setRequests((prevRequests) => prevRequests.filter((req) => req.id !== requestId));
+  // };
+
+
+ {/* Create Post Section */}
         {/* <div className="bg-white text-gray-800 rounded-lg shadow-lg p-6 mb-8">
           <h2 className="text-2xl font-poppins font-bold mb-4">Create Post</h2>
 
@@ -896,47 +1073,7 @@ const Dashboard = () => {
             </form>
         </div> */}
 
-
-
-
-    <div>
-      {/* Button to toggle the Create Post form */}
-      <button
-        onClick={toggleFormVisibility}
-        className="bg-yellow-500 text-gray-800 px-6 py-3 rounded-full font-semibold hover:bg-yellow-600 mb-4"
-      >
-        {isFormVisible ? 'Hide Create Post' : 'Create Post'}
-      </button>
-
-      {/* Create Post Form Section */}
-      {isFormVisible && (
-        <div className="bg-white text-gray-800 rounded-lg shadow-lg p-6 mb-8">
-          <h2 className="text-2xl font-poppins font-bold mb-4">Create Post</h2>
-
-          <form onSubmit={handleSubmit}>
-            <div className="mb-4">
-              <label className="block text-gray-700 font-semibold mb-2">Units</label>
-              <input
-                type="number"
-                name="units"
-                value={formValues.units}
-                onChange={handleInputChange}
-                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none"
-                required
-              />
-            </div>
-            <div className="mb-4">
-              <label className="block text-gray-700 font-semibold mb-2">Price</label>
-              <input
-                type="number"
-                name="price"
-                value={formValues.price}
-                onChange={handleInputChange}
-                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none"
-                required
-              />
-            </div>
-            {/* <div className="mb-4">
+  {/* <div className="mb-4">
               <label className="block text-gray-700 font-semibold mb-2">Location</label>
               <select
                 name="location"
@@ -954,40 +1091,9 @@ const Dashboard = () => {
               </select>
             </div> */}
 
-<div className="mb-4">
-                <label className="block text-gray-700 font-semibold mb-2">Location</label>
-                <select
-                  name="location"
-                  value={formValues.location}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none"
-                  required
-                >
-                  <option value="">Select Location</option>
-                  {locations.map((location) => (
-                    <option key={location.loc_id} value={location.loc_id}>
-                      {location.address}
-                    </option>
-                  ))}
-                </select>
-              </div>
-          
-
-
-            <button
-              type="submit"
-              className="bg-yellow-500 text-gray-800 px-6 py-3 rounded-full font-semibold hover:bg-yellow-600"
-            >
-              Post for Sale
-            </button>
-          </form>
-        </div>
-      )}
-    </div>
-
 
         {/* View Requests Section */}
-        <div className="bg-white text-gray-800 rounded-lg shadow-lg p-6 mb-8">
+        {/* <div className="bg-white text-gray-800 rounded-lg shadow-lg p-6 mb-8">
           <h2 className="text-2xl font-poppins font-bold mb-4">View Requests</h2>
           {requests.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -1015,36 +1121,36 @@ const Dashboard = () => {
           ) : (
             <p className="text-gray-600">No requests yet.</p>
           )}
-        </div>
+        </div> */}
 
-        {/* Transactions Section */}
-        <div className="bg-white text-gray-800 rounded-lg shadow-lg p-6 mb-8">
-          <h2 className="text-2xl font-poppins font-bold mb-4">Transactions</h2>
-          <button
-            onClick={toggleTransactions}
-            className="bg-blue-500 text-white px-4 py-2 rounded-full font-semibold hover:bg-blue-600 mb-4"
-          >
-            {showTransactions ? 'Hide' : 'Show'} Transactions
-          </button>
-          {showTransactions && transactions.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {transactions.map((txn) => (
-                <div key={txn.id} className="bg-gray-100 p-4 rounded-lg shadow-md">
-                  <h3 className="text-xl font-semibold">Post ID: {txn.postId}</h3>
-                  <p className="text-sm mb-2">Units Sold: {txn.units}</p>
-                  <p className="text-sm mb-2">Price: ${txn.price}</p>
-                  <p className="text-sm mb-2">Status: {txn.status}</p>
-                  <p className="text-sm">Date: {txn.date}</p>
-                </div>
-              ))}
+{/* 
+<div className="bg-white text-gray-800 rounded-lg shadow-lg p-6 mb-8">
+      <h2 className="text-2xl font-poppins font-bold mb-4">View Requests</h2>
+      {requests.length > 0 ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {requests.map((req) => (
+            <div key={req.id} className="bg-gray-100 p-4 rounded-lg shadow-md">
+              <h3 className="text-xl font-semibold">{req.user_name}</h3>
+              <p className="text-sm mb-2">Email: {req.email}</p>
+              <p className="text-sm mb-2">Post ID: {req.post_id}</p>
+              <p className="text-sm mb-4">Units Requested: {req.units}</p>
+              <p className="text-sm mb-4">Status: {req.status}</p>
+
+              <button
+                onClick={() => approveRequest(req.trans_id, req.units, req.post_id)}
+                disabled={approvedRequests.includes(req.trans_id)} // Disable if already approved
+                className={`px-4 py-2 rounded-full font-semibold mr-2 ${
+                  approvedRequests.includes(req.trans_id)
+                    ? "bg-gray-400 text-gray-700 cursor-not-allowed"
+                    : "bg-green-500 text-white hover:bg-green-600"
+                }`}
+              >
+                {approvedRequests.includes(req.trans_id) ? "Approved" : "Approve"}
+              </button>
             </div>
-          ) : (
-            <p className="text-gray-600">No transactions yet.</p>
-          )}
+          ))}
         </div>
-      </div>
-    </section>
-  );
-};
-
-export default Dashboard;
+      ) : (
+        <p className="text-gray-500">No requests available.</p>
+      )}
+    </div>*/}
