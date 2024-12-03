@@ -1,4 +1,5 @@
 import React from 'react';
+
 import Header from './components/Header'; 
 import HeroSection from './components/HeroSection'; 
 import './App.css'; 
@@ -7,6 +8,7 @@ import SignUp from './components/SignUp';
 import Dashboard from './components/Dashboard';
 import Marketplace from './components/Marketplace'; // Import Marketplace component
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
 import AdminDashboard from './components/AdminDashboard';
 
 const App = () => {

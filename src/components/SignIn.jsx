@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom'; // Import Link from react-router-dom
+import { Link, useNavigate } from 'react-router-dom'; // Import Link from react-router-dom
 import api from "./api"; 
 
 
@@ -8,6 +8,7 @@ const SignIn = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null); // For capturing any error messages
+  const navigate=useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -35,10 +36,10 @@ const SignIn = () => {
         // Redirect based on user role
         if (response.data.message.includes('Admin')) {
           // navigate('/#'); // Redirect to admin dashboard or wherever you want
-          alert("Admin login successfully!");
+          navigate("/admindashboard")
         } else {
           // navigate('/#'); // Redirect to user dashboard or home
-          alert("User login successfully!");
+          navigate("/dashboard")
         }
 
       } else {
@@ -135,6 +136,7 @@ const SignIn = () => {
             <button
               type="submit"
               className="bg-indigo-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-600 transition duration-300"
+     
             >
               Sign In
             </button>
