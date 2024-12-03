@@ -31,8 +31,8 @@ const api = {
   getRecPost: () => axios.get(`${API_BASE_URL}/transactions/getRecPost`, {withCredentials : true}),
   fetchTransactions : () => axios.get(`${API_BASE_URL}/admin/getProgressTransactions`, {withCredentials : true}),
   fetchTechniciansByLocation : (locationId) => axios.get(`${API_BASE_URL}/admin/technicians/${locationId}`),
-  assignTechnicianToPost : (data) => axios.post(`${API_BASE_URL}/admin/assignTech`, data)
-
+  assignTechnicianToPost : (data) => axios.post(`${API_BASE_URL}/admin/assignTech`, data),
+  fetchRecurringPosts: () => axios.get(`${API_BASE_URL}/admin/getRecurring`, {withCredentials: true}),
 };
 
 export default api;

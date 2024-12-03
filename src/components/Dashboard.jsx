@@ -596,9 +596,6 @@
 
 
 
-
-
-
 import React, { useState, useEffect } from 'react';
 import api from "./api"; 
 
@@ -628,8 +625,10 @@ const Dashboard = () => {
   const [requests, setRequests] = useState([]);
 
   const [recTransactions, setRecTransactions] = useState([]);
+  const [recTransactions2, setRecTransactions2] = useState([]);
 
   const [showTransactions, setShowTransactions] = useState(false);
+  const [showTransactions2, setShowTransactions2] = useState(false);
 
     const fetchUserData = async () => {
       try {
@@ -741,11 +740,20 @@ const Dashboard = () => {
       try {
         const response = await api.getRecPost();
         setRecTransactions(response.data.posts); // Assuming the user details are in response.data
+        setRecTransactions2(response.data.posts2)
       } catch (err) {
         setError('Failed to load Rec posts');
       }
     }
+ 
+    const [activeTab, setActiveTab] = useState("posts"); // Default tab
 
+    
+
+    const handleTabChange = (tab) => {
+      setActiveTab(tab);
+    }
+  
   useEffect(() => {
     fetchUserData();
     fetchPosts();
@@ -788,20 +796,28 @@ const Dashboard = () => {
   const toggleTransactions = () => {
     setShowTransactions(!showTransactions);
   };
+  const toggleTransactions2 = () => {
+    setShowTransactions2(!showTransactions2);
+  };
+
 
   return (
     <section className="dashboard bg-gradient-to-r from-green-400 via-teal-500 to-blue-500 text-white min-h-screen py-10">
-      <div className="container mx-auto px-6">
+      <div className="container mx-auto px-6 max-w-screen-lg">
         {/* User Details Section */}
-        <div>
+        <div className="bg-white text-gray-800 rounded-lg shadow-lg p-6 mb-8">
           {user ? (
             <div>
-              <h1>Welcome, {user.user_name}</h1>
-              <p>Email: {user.email}</p>
-              {/* <p>ID: {user.id}</p> */}
+              <h2 className="text-2xl font-poppins font-bold mb-4">Welcome</h2>
+              <p className="text-lg">
+                <strong>Name:</strong> {user.user_name}
+              </p>
+              <p className="text-lg">
+                <strong>Email:</strong> {user.email}
+              </p>
             </div>
           ) : (
-            <p>Loading user details...</p>
+            <p className="text-gray-600">Loading user details...</p>
           )}
         </div>
 
@@ -952,205 +968,34 @@ const Dashboard = () => {
             <p className="text-gray-600">No transactions yet.</p>
           )}
         </div>
-      </div> 
+      </div>      
 
+
+      <div className="bg-white text-gray-800 rounded-lg shadow-lg p-6 mb-8">
+          <h2 className="text-2xl font-poppins font-bold mb-4">Transactions</h2>
+          <button
+            onClick={toggleTransactions2}
+            className="bg-blue-500 text-white px-4 py-2 rounded-full font-semibold hover:bg-blue-600 mb-4"
+          >
+            {showTransactions2 ? 'Hide' : 'Show'} Transactions
+          </button>
+          {showTransactions2 && recTransactions2.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {recTransactions2.map((txn) => (
+                <div key={txn.id} className="bg-gray-100 p-4 rounded-lg shadow-md">
+                  <h3 className="text-xl font-semibold">Post ID: {txn.post_id}</h3>
+                  <p className="text-sm mb-2">Seller Name: {txn.user_name}</p>
+                  <p className="text-sm mb-2">Email: {txn.email}</p>
+                  <p className="text-sm mb-2">Units Bought: {txn.units}</p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-600">No transactions yet.</p>
+          )}
+        </div>
     </section>
   );
 };
 
 export default Dashboard;
-
-
-
-
-
-  // const handleInputChange = (e) => {
-  //   const { name, value } = e.target;
-  //   setFormValues((prevValues) => ({
-  //     ...prevValues,
-  //     [name]: value,
-  //   }));
-  // };
-
-  // const createPost = (e) => {
-  //   e.preventDefault();
-  //   if (formValues.title && formValues.units && formValues.price) {
-  //     const newPost = {
-  //       id: posts.length + 1,
-  //       ...formValues,
-  //     };
-  //     setPosts((prevPosts) => [...prevPosts, newPost]);
-  //     setFormValues({ title: '', units: '', price: '' });
-  //   } else {
-  //     alert('All fields are required!');
-  //   }
-  // };
-
-  // const deletePost = (id) => {
-  //   setPosts((prevPosts) => prevPosts.filter((post) => post.id !== id));
-  // };
-
-
-// const approveRequest = async (trans_Id, units, post_id) => {
-  //   try {
-  //     const response = await api.approveReq(trans_Id, units, post_id);
-
-  //     // If backend call is successful, mark this transaction as approved
-  //     setApprovedRequests((prev) => [...prev, trans_Id]);
-  //     alert(`Transaction ID ${trans_Id} approved!`);
-  //   } catch (err) {
-  //     setError(err.message || "Error approving transaction");
-  //     console.error("Error approving transaction:", err);
-  //   }
-  // };
-
- // const approveRequest = async (trans_Id, units, post_id) => {
-  //   try{
-  //     const response = await api.approveReq(trans_Id, units, post_id)
-  //     alert(`Transaction ID ${trans_Id} approved!`);
-  //   }
-  //   catch(err){
-  //     setError(err.message || "Error approving post");
-  //     console.error("Error deleting post:", err);
-  //   }
-  //   // setRequests((prevRequests) => prevRequests.filter((req) => req.id !== requestId));
-  // };
-
-
- {/* Create Post Section */}
-        {/* <div className="bg-white text-gray-800 rounded-lg shadow-lg p-6 mb-8">
-          <h2 className="text-2xl font-poppins font-bold mb-4">Create Post</h2>
-
-
-
-          <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-              <label className="block text-gray-700 font-semibold mb-2">Units</label>
-              <input
-                type="number"
-                name="units"
-                value={formValues.units}
-                onChange={handleInputChange}
-                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none"
-                required
-              />
-            </div>
-            <div className="mb-4">
-              <label className="block text-gray-700 font-semibold mb-2">Price</label>
-              <input
-                type="number"
-                name="price"
-                value={formValues.price}
-                onChange={handleInputChange}
-                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none"
-                required
-              />
-            </div>
-            <div className="mb-4">
-              <label className="block text-gray-700 font-semibold mb-2">Location</label>
-              <select
-                name="location"
-                value={formValues.location}
-                onChange={handleInputChange}
-                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none"
-                required
-              >
-                <option value="">Select Location</option>
-                {locations.map((location) => (
-                  <option key={location.id} value={location.name}>
-                    {location.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <button
-              type="submit"
-              className="bg-yellow-500 text-gray-800 px-6 py-3 rounded-full font-semibold hover:bg-yellow-600"
-            >
-              Post for Sale
-            </button>
-            </form>
-        </div> */}
-
-  {/* <div className="mb-4">
-              <label className="block text-gray-700 font-semibold mb-2">Location</label>
-              <select
-                name="location"
-                value={formValues.location}
-                onChange={handleInputChange}
-                 className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none"
-                required
-              >
-                <option value="" className='text-black'>Select Location</option>
-                {locations.map((location) => (
-                  <option key={location.id} value={location.name}>
-                    {location.name}
-                  </option>
-                ))}
-              </select>
-            </div> */}
-
-
-        {/* View Requests Section */}
-        {/* <div className="bg-white text-gray-800 rounded-lg shadow-lg p-6 mb-8">
-          <h2 className="text-2xl font-poppins font-bold mb-4">View Requests</h2>
-          {requests.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {requests.map((req) => (
-                <div key={req.id} className="bg-gray-100 p-4 rounded-lg shadow-md">
-                  <h3 className="text-xl font-semibold">{req.user_name}</h3>
-                  <p className="text-sm mb-2">Email: {req.email}</p>
-                  <p className="text-sm mb-2">Post ID: {req.post_id}</p>
-                  <p className="text-sm mb-4">Units Requested: {req.units}</p>
-                  <button
-                    onClick={() => approveRequest(req.trans_id, req.units, req.post_id)}
-                    className="bg-green-500 text-white px-4 py-2 rounded-full font-semibold hover:bg-green-600 mr-2"
-                  >
-                    Approve
-                  </button>
-                  <button
-                    onClick={() => declineRequest(req.id)}
-                    className="bg-red-500 text-white px-4 py-2 rounded-full font-semibold hover:bg-red-600"
-                  >
-                    Decline
-                  </button>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-gray-600">No requests yet.</p>
-          )}
-        </div> */}
-
-{/* 
-<div className="bg-white text-gray-800 rounded-lg shadow-lg p-6 mb-8">
-      <h2 className="text-2xl font-poppins font-bold mb-4">View Requests</h2>
-      {requests.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {requests.map((req) => (
-            <div key={req.id} className="bg-gray-100 p-4 rounded-lg shadow-md">
-              <h3 className="text-xl font-semibold">{req.user_name}</h3>
-              <p className="text-sm mb-2">Email: {req.email}</p>
-              <p className="text-sm mb-2">Post ID: {req.post_id}</p>
-              <p className="text-sm mb-4">Units Requested: {req.units}</p>
-              <p className="text-sm mb-4">Status: {req.status}</p>
-
-              <button
-                onClick={() => approveRequest(req.trans_id, req.units, req.post_id)}
-                disabled={approvedRequests.includes(req.trans_id)} // Disable if already approved
-                className={`px-4 py-2 rounded-full font-semibold mr-2 ${
-                  approvedRequests.includes(req.trans_id)
-                    ? "bg-gray-400 text-gray-700 cursor-not-allowed"
-                    : "bg-green-500 text-white hover:bg-green-600"
-                }`}
-              >
-                {approvedRequests.includes(req.trans_id) ? "Approved" : "Approve"}
-              </button>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <p className="text-gray-500">No requests available.</p>
-      )}
-    </div>*/}
