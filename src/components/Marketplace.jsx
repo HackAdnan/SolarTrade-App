@@ -198,7 +198,7 @@ const Marketplace = () => {
         console.log("aas")
         fetchPosts(); // Refresh posts to update available units
       } else {
-        alert('Error creating transaction.');
+        alert('Error creating transaction.',response.status);
       }
     } catch (err) {
       alert('Error creating transaction.');

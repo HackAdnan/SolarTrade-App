@@ -7,7 +7,7 @@
 //   const [username, setUsername] = useState('');
 //   const [email, setEmail] = useState('');
 //   const [password, setPassword] = useState('');
-  
+
 //   const [error, setError] = useState(null); // For capturing any error messages
 //   const [success, setSuccess] = useState(false); // To show success message after registration
 //   const [otpSent, setOtpSent] = useState(false);
@@ -94,7 +94,7 @@
 //               required
 //             />
 //           </div>
-            
+
 //             <div>
 //               <label htmlFor="email" className="block text-gray-700 font-semibold">Email</label>
 //               <input
@@ -119,8 +119,8 @@
 //                 required
 //               />
 //             </div>
-            
-            
+
+
 //             <div className="text-center">
 //               <button
 //                 type="submit"
@@ -193,7 +193,7 @@
 //   //   setUserData({ ...userData, [name]: value });
 //   // };
 
-  
+
 
 // //   return (
 // //     <div>
@@ -257,6 +257,7 @@ const SignUp = () => {
   const [otpSent, setOtpSent] = useState(false);
   const [registrationComplete, setRegistrationComplete] = useState(false);
   const navigate = useNavigate(); // Initialize navigate
+  const [user, setUser] = useState({});
 
   // Handle registration form submission
   const handleSubmit = async (e) => {
@@ -273,6 +274,8 @@ const SignUp = () => {
       // Send registration request
       const response = await api.registerUser(userData);
       if (response.status === 200) {
+        console.log(response.data, "handle submit")
+        setUser(response.data.user)
         alert('User registered successfully!');
         setOtpSent(true); // Show OTP verification form
       }
@@ -292,8 +295,8 @@ const SignUp = () => {
     }
 
     try {
-      const otpData = { email, otp: enteredOtp };
-      const response = await api.otpVerification(otpData);
+      const userData = { user, enteredOtp: enteredOtp };
+      const response = await api.otpVerification(userData);
 
       if (response.status === 200) {
         setRegistrationComplete(true);
@@ -307,7 +310,11 @@ const SignUp = () => {
       setError('Incorrect or expired OTP. Please try again.');
     }
   };
-
+  const validateEmail = (email) => {
+    const emailPattern = /^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
+    return emailPattern.test(email);
+  };
+  
   return (
     <div className="flex flex-1 justify-center items-center hero bg-gradient-to-r from-green-400 via-teal-500 to-blue-500 text-white py-10 h-[900px]">
       <div className="mt-10 px-50 bg-white p-8 rounded-lg shadow-lg w-full sm:w-96">
@@ -338,8 +345,22 @@ const SignUp = () => {
               />
             </div>
 
-            <div>
+            {/* <div>
               <label htmlFor="email" className="block text-gray-700 font-semibold">Email</label>
+              <input
+                type="email"
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-4 py-2 mt-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white text-gray-700 placeholder-gray-500"
+                placeholder="Enter your email"
+                required
+              />
+            </div> */}
+            <div>
+              <label htmlFor="email" className="block text-gray-700 font-semibold">
+                Email
+              </label>
               <input
                 type="email"
                 id="email"
