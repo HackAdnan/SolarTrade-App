@@ -348,7 +348,7 @@ const Dashboard = () => {
 
         {/* Transactions Section */}
          <div className="bg-white text-gray-800 rounded-lg shadow-lg p-6 mb-8">
-          <h2 className="text-2xl font-poppins font-bold mb-4">Transactions</h2>
+          <h2 className="text-2xl font-poppins font-bold mb-4">Sold To</h2>
           <button
             onClick={toggleTransactions}
             className="bg-blue-500 text-white px-4 py-2 rounded-full font-semibold hover:bg-blue-600 mb-4"
@@ -374,7 +374,7 @@ const Dashboard = () => {
 
 
       <div className="bg-white text-gray-800 rounded-lg shadow-lg p-6 mb-8">
-          <h2 className="text-2xl font-poppins font-bold mb-4">Transactions</h2>
+          <h2 className="text-2xl font-poppins font-bold mb-4">Bought By</h2>
           <button
             onClick={toggleTransactions2}
             className="bg-blue-500 text-white px-4 py-2 rounded-full font-semibold hover:bg-blue-600 mb-4"

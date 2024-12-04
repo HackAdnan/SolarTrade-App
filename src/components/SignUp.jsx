@@ -296,6 +296,7 @@ const SignUp = () => {
 
     try {
       const userData = { user, enteredOtp: enteredOtp };
+      console.log(user.otpExpiry)
       const response = await api.otpVerification(userData);
 
       if (response.status === 200) {
