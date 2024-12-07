@@ -1,7 +1,17 @@
+import {useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import api from "./api"; 
 
 const Dashboard = () => {
+  const { isLoggedIn } = useSelector((state) => state.auth);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isLoggedIn) {
+      navigate('/sign-in');
+    }
+  }, [isLoggedIn, navigate]);
   const [user, setUser] = useState(null);
   const [error, setError] = useState('');
   const [posts, setPosts] = useState([]);
@@ -174,14 +184,17 @@ const Dashboard = () => {
 
   const approveRequest = async (trans_Id, units, post_id) => {
     try {
+      console.log("send api")
       await api.approveReq(trans_Id, units, post_id);
-
       // Update the request's status to 'Progress' after successful approval
+      console.log("update req")
       setRequests((prevRequests) =>
         prevRequests.map((req) =>
           req.trans_id === trans_Id ? { ...req, status: "Progress" } : req
         )
       );
+      console.log("reload")
+      window.location.reload(); // Reload the page to reflect the changes
       alert(`Transaction ID ${trans_Id} approved!`);
     } catch (err) {
       setError(err.message || "Error approving transaction");

@@ -16,6 +16,7 @@ const api = {
         }
       }), 
       dashboard: () => axios.get(`${API_BASE_URL}/dashboard/`, { withCredentials: true }),  // Corrected API call
+  getSession: () => axios.get(`${API_BASE_URL}/dashboard/getUser`, { withCredentials: true }),
       // Add other API calls as needed
   getMyPost: () => axios.get(`${API_BASE_URL}/posts/myPost`, {withCredentials: true}),//posts as parameter
   delPost: (id) => axios.delete(`${API_BASE_URL}/posts/deletePost/${id}`, {withCredentials: true}),
@@ -33,6 +34,7 @@ const api = {
   fetchTechniciansByLocation : (locationId) => axios.get(`${API_BASE_URL}/admin/technicians/${locationId}`),
   assignTechnicianToPost : (data) => axios.post(`${API_BASE_URL}/admin/assignTech`, data),
   fetchRecurringPosts: () => axios.get(`${API_BASE_URL}/admin/getRecurring`, {withCredentials: true}),
+  logout: () => axios.post(`${API_BASE_URL}/users/logout`, { withCredentials: true })
 };
 
 export default api;

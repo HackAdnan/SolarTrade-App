@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom'; // Import Link from react-router-dom
 import api from "./api"; 
+import { checkSession } from './CheckSession';
 
 
 const SignIn = () => {
@@ -32,7 +33,7 @@ const SignIn = () => {
       if (response.data.token) {
         // Store the token (e.g., in localStorage or context)
         localStorage.setItem('authToken', response.data.token);
-
+        
         // Redirect based on user role
         if (response.data.message.includes('Admin')) {
           // navigate('/#'); // Redirect to admin dashboard or wherever you want
