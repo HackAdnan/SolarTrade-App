@@ -47,6 +47,7 @@ import SignUp from './components/SignUp';
 import Dashboard from './components/Dashboard';
 import Marketplace from './components/Marketplace';
 import AdminDashboard from './components/AdminDashboard';
+import RecurringPosts from './components/RecurringPosts';
 
 const App = () => {
   const ConditionalHeader = () => {
@@ -68,6 +69,7 @@ const App = () => {
         <Route path="/sign-up" element={<SignUp />} />
         <Route path="/marketplace" element={<Marketplace />} />
         <Route path="/admindashboard" element={<AdminDashboard />} />
+        <Route path='/recurringposts' element={<RecurringPosts/>}/>
         <Route
           path="*"
           element={

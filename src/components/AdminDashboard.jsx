@@ -12,7 +12,6 @@ const AdminDashboard = () => {
   const [user, setUser] = useState(null);
   const [approvedPosts, setApprovedPosts] = useState([]);
   const [commissionRate, setCommissionRate] = useState(0.1); // 10% commission
-  const [recurringPosts, setRecurringPosts] = useState([]);
   const [selectedTechnicians, setSelectedTechnicians] = useState({});
 
 
@@ -34,15 +33,7 @@ const AdminDashboard = () => {
     }
   };
 
-  const loadRecurringPosts = async () => {
-    try {
-      const response = await api.fetchRecurringPosts();
-      setRecurringPosts(response.data);
-      console.log(recurringPosts)
-    } catch (error) {
-      console.error('Error fetching recurring posts:', error);
-    }
-  };
+
 
   const assignTechnician = async (transaction_id, technicianId, postId) => {
     console.log(transaction_id)
@@ -105,7 +96,6 @@ const AdminDashboard = () => {
   useEffect(() => {
     fetchUserData();
     loadTransactions();
-    loadRecurringPosts();
   }, []);
 
   return (
@@ -201,23 +191,6 @@ const AdminDashboard = () => {
             </div>
           ) : (
             <p>No approved posts available.</p>
-          )}
-        </div>
-
-        {/* Recurring Posts */}
-        <div className="bg-white text-gray-800 rounded-lg shadow-lg p-6">
-          <h2 className="text-2xl font-bold mb-4">Recurring Posts</h2>
-          {recurringPosts.length > 0 ? (
-            <ul>
-              {recurringPosts.map((post) => (
-                <li key={post.id}>
-                  Transaction ID: {post.transaction_id},
-                  {/* Assigned Technician: {post.technician_name }*/}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p>No recurring posts available.</p>
           )}
         </div>
       </div>

@@ -325,6 +325,11 @@
 // export default Header;
 
 
+
+
+
+
+//last
 import { Link, useNavigate } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -413,7 +418,7 @@ const Header = () => {
           )}
           {userRole === 'Admin' && (
             <Link
-              to="/admindashboard"
+              to="/recurringposts"
               className="block sm:inline-block text-white hover:text-gray-200 font-semibold hover:underline px-4 py-2"
             >
               All Recurring

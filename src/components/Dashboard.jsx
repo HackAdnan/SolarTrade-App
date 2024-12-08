@@ -69,29 +69,39 @@ const Dashboard = () => {
     }
 };
 
-  const deletePost = async (postId) => {
-    console.log("fdfdt",postId)
-    setIsLoading(true);
-    setError(null);
-    
-    try {
-      // Send a DELETE request to the backend with the post ID
-      const response = await api.delPost(postId);
-      console.log("Post deleted:", response.data);
-      
-      // Remove the deleted post from the local state (or refetch posts)
-      // Example: Set posts excluding the deleted one
-      // setPosts(posts.filter(post => post.post_id !== postId));
-              setPosts((prevPosts) => prevPosts.filter((post) => post.post_id !== postId));
+const deletePost = async (postId) => {
+  console.log("Deleting post with ID:", postId);
+  setIsLoading(true);
+  setError(null);
 
-    } catch (err) {
-      setError(err.message || "Error deleting post");
-      console.error("Error deleting post:", err);
-    } finally {
-      setIsLoading(false);
+  try {
+    // Send a DELETE request to the backend with the post ID
+    const response = await api.delPost(postId);
+
+    if (response.status === 200) {
+      console.log("Post deleted successfully:", response.data);
+
+      // Remove the deleted post from the local state
+      setPosts((prevPosts) => prevPosts.filter((post) => post.post_id !== postId));
+    } else {
+      // Handle non-200 responses
+      console.error("Unexpected response status:", response.status);
+      alert("Failed to delete the post. Integrity Constraint.");
     }
-  };
-
+  } catch (err) {
+    // Check if the error is due to a 500 response
+    if (err.response && err.response.status === 500) {
+      alert("Failed to delete the post. Integrity Constraint.");
+      return;
+    } else {
+      alert("An unexpected error occurred. Please try again.");
+    }
+    console.error("Error deleting post:", err);
+    setError(err.message || "Error deleting post");
+  } finally {
+    setIsLoading(false);
+  }
+};
     
     // Handle input changes
     const handleInputChange = (e) => {
@@ -110,8 +120,7 @@ const Dashboard = () => {
         });
       
       }
-    
-
+  
     // Form submission handler
     const handleSubmit = async (e) => {
       console.log("hjdfsjf")
@@ -180,8 +189,6 @@ const Dashboard = () => {
 
   const [approvedRequests, setApprovedRequests] = useState([]); // Track approved requests
 
-  
-
   const approveRequest = async (trans_Id, units, post_id) => {
     try {
       console.log("send api")
@@ -194,7 +201,7 @@ const Dashboard = () => {
         )
       );
       console.log("reload")
-      window.location.reload(); // Reload the page to reflect the changes
+      // window.location.reload(); // Reload the page to reflect the changes
       alert(`Transaction ID ${trans_Id} approved!`);
     } catch (err) {
       setError(err.message || "Error approving transaction");
@@ -262,12 +269,15 @@ const Dashboard = () => {
 
     <div>
       {/* Button to toggle the Create Post form */}
-      <button
-        onClick={toggleFormVisibility}
-        className="bg-yellow-500 text-gray-800 px-6 py-3 rounded-full font-semibold hover:bg-yellow-600 mb-4"
-      >
-        {isFormVisible ? 'Hide Create Post' : 'Create Post'}
-      </button>
+      <div className="flex justify-center">
+  <button
+    onClick={toggleFormVisibility}
+    className="bg-yellow-500 text-gray-800 px-6 py-3 rounded-full font-semibold hover:bg-yellow-600 mb-4"
+  >
+    {isFormVisible ? 'Hide Create Post' : 'Create Post'}
+  </button>
+</div>
+
 
       {/* Create Post Form Section */}
       {isFormVisible && (
@@ -315,9 +325,7 @@ const Dashboard = () => {
                   ))}
                 </select>
               </div>
-          
-
-
+        
             <button
               type="submit"
               className="bg-yellow-500 text-gray-800 px-6 py-3 rounded-full font-semibold hover:bg-yellow-600"
@@ -357,10 +365,8 @@ const Dashboard = () => {
         <p className="text-gray-500">No requests available.</p>
       )}
     </div>
-
-
-        {/* Transactions Section */}
-         <div className="bg-white text-gray-800 rounded-lg shadow-lg p-6 mb-8">
+           {/* Transactions Section */}
+           <div className="bg-white text-gray-800 rounded-lg shadow-lg p-6 mb-8">
           <h2 className="text-2xl font-poppins font-bold mb-4">Sold To</h2>
           <button
             onClick={toggleTransactions}
@@ -383,32 +389,33 @@ const Dashboard = () => {
             <p className="text-gray-600">No transactions yet.</p>
           )}
         </div>
+
+        <div className="bg-white text-gray-800 rounded-lg shadow-lg p-6 mb-8">
+  <h2 className="text-2xl font-poppins font-bold mb-4">Bought By</h2>
+  <button
+    onClick={toggleTransactions2}
+    className="bg-blue-500 text-white px-4 py-2 rounded-full font-semibold hover:bg-blue-600 mb-4"
+  >
+    {showTransactions2 ? 'Hide' : 'Show'} Transactions
+  </button>
+  {showTransactions2 && recTransactions2.length > 0 ? (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {recTransactions2.map((txn) => (
+        <div key={txn.id} className="bg-gray-100 p-4 rounded-lg shadow-md">
+          <h3 className="text-xl font-semibold">Post ID: {txn.post_id}</h3>
+          <p className="text-sm mb-2">Seller Name: {txn.user_name}</p>
+          <p className="text-sm mb-2">Email: {txn.email}</p>
+          <p className="text-sm mb-2">Units Bought: {txn.units}</p>
+        </div>
+      ))}
+    </div>
+  ) : (
+    <p className="text-gray-600">No transactions yet.</p>
+  )}
+</div>
       </div>      
 
 
-      <div className="bg-white text-gray-800 rounded-lg shadow-lg p-6 mb-8">
-          <h2 className="text-2xl font-poppins font-bold mb-4">Bought By</h2>
-          <button
-            onClick={toggleTransactions2}
-            className="bg-blue-500 text-white px-4 py-2 rounded-full font-semibold hover:bg-blue-600 mb-4"
-          >
-            {showTransactions2 ? 'Hide' : 'Show'} Transactions
-          </button>
-          {showTransactions2 && recTransactions2.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {recTransactions2.map((txn) => (
-                <div key={txn.id} className="bg-gray-100 p-4 rounded-lg shadow-md">
-                  <h3 className="text-xl font-semibold">Post ID: {txn.post_id}</h3>
-                  <p className="text-sm mb-2">Seller Name: {txn.user_name}</p>
-                  <p className="text-sm mb-2">Email: {txn.email}</p>
-                  <p className="text-sm mb-2">Units Bought: {txn.units}</p>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-gray-600">No transactions yet.</p>
-          )}
-        </div>
     </section>
   );
 };
