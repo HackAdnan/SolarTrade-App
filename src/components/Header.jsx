@@ -424,7 +424,7 @@ const Header = () => {
               All Recurring
             </Link>
           )}
-          <Link to="/marketplace" className="block sm:inline-block text-white hover:text-gray-200 font-semibold hover:underline px-4 py-2">
+          <Link to="/marketplace" className="block1 sm:inline-block text-white hover:text-gray-200 font-semibold hover:underline px-4 py-2">
             Marketplace
           </Link>
           <Link to="#" className="block sm:inline-block text-white hover:text-gray-200 font-semibold hover:underline px-4 py-2">

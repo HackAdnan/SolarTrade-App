@@ -40,6 +40,7 @@ const SignIn = () => {
           navigate("/admindashboard")
         } else {
           // navigate('/#'); // Redirect to user dashboard or home
+          console.log("navigate to dashboard")
           navigate("/dashboard")
         }
 
